@@ -57,9 +57,19 @@ app.get("/api/persons/:id", (request, response) => {
 
 app.delete("/api/persons/:id", (request, response) => {
   const id = Number(request.params.id);
+  const initialLength = persons.length;
   persons = persons.filter((person) => person.id !== id);
+
+  if (persons.length === initialLength) {
+    return response.status(404).json({
+      error: `No person with ID ${id} was found. No deletions were made.`,
+    });
+  }
   console.log(persons);
-  response.status(204).end();
+
+  response.status(200).json({
+    message: `Person with ID: ${id} was successfully deleted`,
+  });
 });
 
 const generateId = () => {
@@ -78,14 +88,22 @@ app.post("/api/persons", (request, response) => {
     });
   }
 
+  const duplicate = persons.find((person) => person.name == body.name);
+
+  if (duplicate) {
+    return response.status(400).json({
+      error: "That name is already in the phone book",
+    });
+  }
+
   const person = {
-    number: body.number,
-    name: body.name,
     id: generateId(),
+    name: body.name,
+    number: body.number,
   };
 
   persons = persons.concat(person);
-  response.json(person);
+  response.status(201).json(person);
 });
 
 const PORT = 3001;
