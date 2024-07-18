@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const morgan = require("morgan");
 
 let persons = [
   {
@@ -25,6 +26,7 @@ let persons = [
 ];
 
 app.use(express.json());
+app.use(morgan("tiny"));
 
 app.get("/", (request, response) => {
   response.status(200).send("<h1>Hello world from Part 3, with Phonebook!<h1>");
@@ -105,6 +107,12 @@ app.post("/api/persons", (request, response) => {
   persons = persons.concat(person);
   response.status(201).json(person);
 });
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: "unknown endpoint" });
+};
+
+app.use(unknownEndpoint);
 
 const PORT = 3001;
 

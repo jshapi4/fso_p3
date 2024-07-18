@@ -8,3 +8,7 @@ Content-Type: application/json
     "name": "Jospeh Name",
     "number": "555-344-4544"
 }
+
+
+###
+GET http://localhost:3001/api/persons/4
