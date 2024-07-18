@@ -27,11 +27,21 @@ const persons = [
 app.use(express.json());
 
 app.get("/", (request, response) => {
-  response.send("<h1>Hello world from Part 3, with Phonebook!<h1>");
+  response.status(200).send("<h1>Hello world from Part 3, with Phonebook!<h1>");
 });
 
 app.get("/api/persons", (request, response) => {
-  response.send(persons);
+  response.status(200).send(persons);
+});
+
+const date = new Date();
+
+app.get("/info", (request, response) => {
+  response.status(200).send(
+    `<p>The phonebook has info for ${persons.length} people</p>
+    <p>${date}</>
+    `
+  );
 });
 
 const PORT = 3001;
