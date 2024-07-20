@@ -1,27 +1,30 @@
 const express = require("express");
 const app = express();
 const morgan = require("morgan");
+const cors = require("cors");
+
+app.use(cors());
 
 let persons = [
   {
     id: 1,
     name: "Arto Hellas",
-    number: "040-123456",
+    phone: "040-123456",
   },
   {
     id: 2,
     name: "Ada Lovelace",
-    number: "39-44-5323523",
+    phone: "39-44-5323523",
   },
   {
     id: 3,
     name: "Dan Abramov",
-    number: "12-43-234345",
+    phone: "12-43-234345",
   },
   {
     id: 4,
     name: "Mary Poppendieck",
-    number: "39-23-6423122",
+    phone: "39-23-6423122",
   },
 ];
 
@@ -100,7 +103,8 @@ const generateId = () => {
 app.post("/api/persons", (request, response) => {
   const body = request.body;
 
-  const valid = body.name && body.number;
+  const valid = body.name && body.phone;
+  console.log(body.name, body.phone);
 
   if (!valid) {
     return response.status(400).json({
@@ -119,7 +123,7 @@ app.post("/api/persons", (request, response) => {
   const person = {
     id: generateId(),
     name: body.name,
-    number: body.number,
+    phone: body.phone,
   };
 
   persons = persons.concat(person);
