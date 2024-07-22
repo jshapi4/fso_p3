@@ -1,32 +1,34 @@
+require("dotenv").config();
 const express = require("express");
 const app = express();
+const Person = require("./models/person");
 const morgan = require("morgan");
 const cors = require("cors");
 
 app.use(cors());
 
-let persons = [
-  {
-    id: 1,
-    name: "Arto Hellas",
-    phone: "040-123456",
-  },
-  {
-    id: 2,
-    name: "Ada Lovelace",
-    phone: "39-44-5323523",
-  },
-  {
-    id: 3,
-    name: "Dan Abramov",
-    phone: "12-43-234345",
-  },
-  {
-    id: 4,
-    name: "Mary Poppendieck",
-    phone: "39-23-6423122",
-  },
-];
+// let persons = [
+//   {
+//     id: 1,
+//     name: "Arto Hellas",
+//     phone: "040-123456",
+//   },
+//   {
+//     id: 2,
+//     name: "Ada Lovelace",
+//     phone: "39-44-5323523",
+//   },
+//   {
+//     id: 3,
+//     name: "Dan Abramov",
+//     phone: "12-43-234345",
+//   },
+//   {
+//     id: 4,
+//     name: "Mary Poppendieck",
+//     phone: "39-23-6423122",
+//   },
+// ];
 
 app.use(express.json());
 app.use(express.static("dist"));
@@ -55,7 +57,9 @@ app.get("/", (request, response) => {
 });
 
 app.get("/api/persons", (request, response) => {
-  response.status(200).send(persons);
+  Person.find({}).then((people) => {
+    response.json(people);
+  });
 });
 
 const date = new Date();
@@ -69,8 +73,12 @@ app.get("/info", (request, response) => {
 });
 
 app.get("/api/persons/:id", (request, response) => {
-  const id = Number(request.params.id);
-  const person = persons.find((person) => person.id === id);
+  // const id = Number(request.params.id);
+  // const person = persons.find((person) => person.id === id);
+
+  Person.findById(request.params.id).then((person) => {
+    response.json(person);
+  });
 
   if (person) {
     response.json(person);
@@ -96,39 +104,58 @@ app.delete("/api/persons/:id", (request, response) => {
   });
 });
 
-const generateId = () => {
-  const randomId = Math.floor(Math.random() * 10000);
-  return randomId;
-};
+// const generateId = () => {
+//   const randomId = Math.floor(Math.random() * 10000);
+//   return randomId;
+// };
 
 app.post("/api/persons", (request, response) => {
   const body = request.body;
 
-  const valid = body.name && body.phone;
-  console.log(body.name, body.phone);
+  // const valid = body.name && body.phone;
+  // console.log(body.name, body.phone);
 
-  if (!valid) {
+  // if (!valid) {
+  //   return response.status(400).json({
+  //     error: "Must have a name AND number to add to phonebook",
+  //   });
+  // }
+
+  // const duplicate = persons.find((person) => person.name == body.name);
+
+  // if (duplicate) {
+  //   return response.status(400).json({
+  //     error: "That name is already in the phone book",
+  //   });
+  // }
+
+  // const person = {
+  //   id: generateId(),
+  //   name: body.name,
+  //   phone: body.phone,
+  // };
+
+  // persons = persons.concat(person);
+  // response.status(201).json(person);
+
+  if (body.name === undefined || body.phone === undefined) {
     return response.status(400).json({
-      error: "Must have a name AND number to add to phonebook",
+      error: "name or phone missing",
     });
   }
 
-  const duplicate = persons.find((person) => person.name == body.name);
-
-  if (duplicate) {
-    return response.status(400).json({
-      error: "That name is already in the phone book",
-    });
-  }
-
-  const person = {
-    id: generateId(),
+  const person = new Person({
     name: body.name,
     phone: body.phone,
-  };
+  });
 
-  persons = persons.concat(person);
-  response.status(201).json(person);
+  // notes = notes.concat(note);
+  // console.log(note);
+  // response.status(201).json(note);
+
+  person.save().then((savedPerson) => {
+    response.json(savedPerson);
+  });
 });
 
 const unknownEndpoint = (request, response) => {
